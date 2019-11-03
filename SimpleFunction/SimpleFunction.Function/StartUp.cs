@@ -15,10 +15,6 @@ namespace SimpleFunction.Function
         {
             var services = builder.Services;
 
-            var hostingEnvironment = services
-                .BuildServiceProvider()
-                .GetService<IHostingEnvironment>();
-
             var configurationBuilder = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
                 .SetBasePath(Directory.GetCurrentDirectory())

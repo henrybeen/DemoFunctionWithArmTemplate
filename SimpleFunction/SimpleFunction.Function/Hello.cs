@@ -10,10 +10,10 @@ using Newtonsoft.Json;
 
 namespace SimpleFunction.Function
 {
-    public static class Hello
+    public class Hello
     {
         [FunctionName(nameof(Hello))]
-        public static async Task<IActionResult> Run(
+        public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {

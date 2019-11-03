@@ -22,7 +22,7 @@ namespace SimpleFunction.Function
             var configurationBuilder = new ConfigurationBuilder()
                 .AddEnvironmentVariables()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("secret.settings.json");
+                .AddJsonFile("secret.settings.json", true);
  
             var newConfiguration = configurationBuilder.Build();
             services.AddSingleton<IConfiguration>(newConfiguration);

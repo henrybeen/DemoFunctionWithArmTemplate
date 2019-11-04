@@ -24,7 +24,7 @@ namespace SimpleFunction.Function
         {
             log.LogCritical("Warming up, right now!!");
 
-            await Task.Delay(120000);
+            await Task.Delay(20000);
 
             return new OkObjectResult("OK");
         }

@@ -15,7 +15,7 @@ namespace SimpleFunction.Function
         public WarmUp(IConfiguration configuration)
         {
             _configuration = configuration;
-        }
+        } 
 
         [FunctionName(nameof(WarmUp))]
         public async Task<IActionResult> Run(

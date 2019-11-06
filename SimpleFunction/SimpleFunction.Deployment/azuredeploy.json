@@ -1,0 +1,162 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "discriminator": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "functionAppName": "[concat(parameters('discriminator'), '-cdforfunctions5')]",
+    "hostingPlanName": "[concat(parameters('discriminator'), '-cdforfunctions5')]",
+    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
+    "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+    "serviceBusNamespaceName": "[concat(parameters('discriminator'), '-cdforfunctions5')]",
+    "queueName": "exampleQueue",
+    "authorizationRuleName": "exampleAuthorization"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageAccountName')]",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "accountType": "Standard_LRS"
+      }
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces",
+      "apiVersion": "2017-04-01",
+      "name": "[variables('serviceBusNamespaceName')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard"
+      },
+      "resources": [
+        {
+          "apiVersion": "2017-04-01",
+          "name": "[variables('queueName')]",
+          "type": "Queues",
+          "dependsOn": [
+            "[concat('Microsoft.ServiceBus/namespaces/', variables('serviceBusNamespaceName'))]"
+          ],
+          "resources": [
+            {
+              "type": "AuthorizationRules",
+              "apiVersion": "2017-04-01",
+              "name": "[variables('authorizationRuleName')]",
+              "dependsOn": [
+                "[variables('queueName')]"
+              ],
+              "properties": {
+                "rights": [
+                  "Send",
+                  "Listen"
+                ]
+              }
+            }
+          ],
+          "properties": {
+            "lockDuration": "PT1M",
+            "defaultMessageTimeToLive": "PT2H",
+            "deadLetteringOnMessageExpiration": "true",
+            "maxDeliveryCount": "3",
+            "enablePartitioning": "true"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2015-04-01",
+      "name": "[variables('hostingPlanName')]",
+      "kind": "functionapp",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "name": "[variables('hostingPlanName')]",
+        "computeMode": "Dynamic",
+        "sku": "Dynamic"
+      }
+    },
+    {
+      "apiVersion": "2015-08-01",
+      "type": "Microsoft.Web/sites",
+      "name": "[variables('functionAppName')]",
+      "location": "[resourceGroup().location]",
+      "kind": "functionapp",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+      },
+      "resources": [
+        {
+          "type": "config",
+          "name": "appsettings",
+          "apiVersion": "2018-11-01",
+          "properties": {
+            "FUNCTIONS_EXTENSION_VERSION": "~2",
+            "WEBSITE_CONTENTSHARE": "[toLower(variables('functionAppName'))]",
+            "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]",
+            "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]",
+            "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]",
+            "IsDisabled": "0",
+            "ServiceBusConnectionString": "[replace(listKeys(resourceId('Microsoft.ServiceBus/namespaces/queues/AuthorizationRules', variables('serviceBusNamespaceName'), variables('queueName'), variables('authorizationRuleName')),'2015-08-01').primaryConnectionString, concat(';EntityPath=', variables('queueName')), '')]",
+            "QueueName": "[variables('queueName')]"
+          },
+          "dependsOn": [
+            "[variables('functionAppName')]"
+          ]
+        },
+        {
+          "apiVersion": "2015-08-01",
+          "name": "slotconfignames",
+          "type": "config",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('functionAppName'))]"
+          ],
+          "properties": {
+            "appSettingNames": [ "IsDisabled" ]
+          }
+        },
+        {
+          "apiVersion": "2016-08-01",
+          "type": "Microsoft.Web/sites/slots",
+          "name": "[concat(variables('functionAppName'), '/staging')]",
+          "kind": "functionapp",
+          "location": "[resourceGroup().location]",
+          "properties": {
+            "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('functionAppName'))]"
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('functionAppName'))]"
+          ],
+          "resources": [
+            {
+              "type": "config",
+              "name": "appsettings",
+              "apiVersion": "2018-11-01",
+              "properties": {
+                "FUNCTIONS_EXTENSION_VERSION": "~2",
+                "WEBSITE_CONTENTSHARE": "[toLower(variables('functionAppName'))]",
+                "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]",
+                "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]",
+                "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]",
+                "IsDisabled": "1",
+                "ServiceBusConnectionString": "[replace(listKeys(resourceId('Microsoft.ServiceBus/namespaces/queues/AuthorizationRules', variables('serviceBusNamespaceName'), variables('queueName'), variables('authorizationRuleName')),'2015-08-01').primaryConnectionString, concat(';EntityPath=', variables('queueName')), '')]",
+                "QueueName": "[variables('queueName')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/Sites/slots', variables('functionAppName'), 'staging')]"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "outputs": {}
+}

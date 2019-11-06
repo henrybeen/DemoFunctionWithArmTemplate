@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29424.173
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleFunction.Function", "SimpleFunction.Function\SimpleFunction.Function.csproj", "{EC2C11FE-B9E2-4BE1-91C8-3D2FAFA8FEA5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleFunction.Function", "SimpleFunction.Function\SimpleFunction.Function.csproj", "{EC2C11FE-B9E2-4BE1-91C8-3D2FAFA8FEA5}"
+EndProject
+Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "SimpleFunction.Deployment", "SimpleFunction.Deployment\SimpleFunction.Deployment.deployproj", "{510E25C3-C8CF-4D3E-9404-990EE3994790}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{EC2C11FE-B9E2-4BE1-91C8-3D2FAFA8FEA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC2C11FE-B9E2-4BE1-91C8-3D2FAFA8FEA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC2C11FE-B9E2-4BE1-91C8-3D2FAFA8FEA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{510E25C3-C8CF-4D3E-9404-990EE3994790}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{510E25C3-C8CF-4D3E-9404-990EE3994790}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{510E25C3-C8CF-4D3E-9404-990EE3994790}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{510E25C3-C8CF-4D3E-9404-990EE3994790}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

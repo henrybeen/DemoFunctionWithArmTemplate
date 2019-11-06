@@ -13,7 +13,8 @@
     "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
     "serviceBusNamespaceName": "[concat(parameters('discriminator'), '-cdforfunctions5')]",
     "queueName": "exampleQueue",
-    "authorizationRuleName": "exampleAuthorization"
+    "authorizationRuleName": "exampleAuthorization",
+    "stagingSlotName": "staging"
   },
   "resources": [
     {
@@ -125,7 +126,7 @@
         {
           "apiVersion": "2016-08-01",
           "type": "Microsoft.Web/sites/slots",
-          "name": "[concat(variables('functionAppName'), '/staging')]",
+          "name": "[concat(variables('functionAppName'), '/', variables('stagingSlotName'))]",
           "kind": "functionapp",
           "location": "[resourceGroup().location]",
           "properties": {
@@ -150,7 +151,7 @@
                 "QueueName": "[variables('queueName')]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Web/Sites/slots', variables('functionAppName'), 'staging')]"
+                "[resourceId('Microsoft.Web/Sites/slots', variables('functionAppName'), variables('stagingSlotName'))]"
               ]
             }
           ]
@@ -162,6 +163,10 @@
     "functionAppName": {
       "type": "string",
       "value": "[variables('functionAppName')]"
+    },
+    "stagingSlotName": {
+      "type": "string",
+      "value": "[variables('stagingSlotName')]"
     }
   }
 }
